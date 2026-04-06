@@ -1,50 +1,28 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// --- SEKCJA DLA RENDERA (Żeby bot nie zasnął) ---
-const port = process.env.PORT || 10000;
+// Serwer WWW - bez tego Render wyłączy bota po 2 minutach!
 http.createServer((req, res) => {
-  res.write("Bot is alive and pinging!");
+  res.write("Bot 1.21.11 is running!");
   res.end();
-}).listen(port);
-console.log(`Serwer WWW bota odpalił na porcie ${port}`);
+}).listen(process.env.PORT || 10000);
 
-// --- KONFIGURACJA BOTA ---
-const botOptions = {
-  host: 'placuszekcraftsmp.play.hosting', // np. 'twojanazwa.play-hosting.pl'
-  port: 55279,                // domyślny port Minecraft
-  username: 'BOTEK',  // nick bota
-  version: '1.21.11'           // zmień na wersję swojego serwera
-};
+const bot = mineflayer.createBot({
+  host: 'placuszekcraftsmp.play.hosting',    // Sprawdź czy IP się nie zmieniło w panelu!
+  port: 55279,             // Sprawdź czy PORT się nie zmienił!
+  username: 'BOTEK',
+  version: '1.21.11'
+});
 
-function createBot() {
-  const bot = mineflayer.createBot(botOptions);
+bot.on('spawn', () => {
+  console.log('SUKCES! Bot wszedł na serwer 1.21.11');
+});
 
-  bot.on('spawn', () => {
-    console.log('Bot wszedł na serwer!');
-    
-    // Pętla wysyłająca /ping co 60 sekund
-    setInterval(() => {
-      if (bot.entity) {
-        bot.chat('/ping');
-        console.log('Wysłano /ping do serwera');
-      }
-    }, 60000);
-  });
+bot.on('error', (err) => {
+  console.log('Błąd połączenia:', err.message);
+});
 
-  // AUTO-RECONNECT (Jeśli bot zostanie wyrzucony)
-  bot.on('end', () => {
-    console.log('Połączenie przerwane. Reconnect za 10 sekund...');
-    setTimeout(createBot, 10000);
-  });
-
-  bot.on('error', (err) => {
-    console.log('Błąd bota:', err);
-  });
-
-  bot.on('kicked', (reason) => {
-    console.log('Bot wyrzucony z serwera za:', reason);
-  });
-}
-
-createBot();
+bot.on('end', () => {
+  console.log('Rozłączono. Próba powrotu za 10s...');
+  setTimeout(() => process.exit(1), 10000); // Render sam zrestartuje bota
+});
