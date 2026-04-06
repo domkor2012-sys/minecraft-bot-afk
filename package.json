@@ -1,0 +1,12 @@
+{
+  "name": "minecraft-bot-afk",
+  "version": "1.0.0",
+  "description": "Bot do utrzymywania serwera online",
+  "main": "bot.js",
+  "dependencies": {
+    "mineflayer": "^4.20.0"
+  },
+  "scripts": {
+    "start": "node bot.js"
+  }
+}
